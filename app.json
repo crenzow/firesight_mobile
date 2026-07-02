@@ -38,6 +38,18 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "FireSight needs your camera to capture fire incident photos directly. Gallery uploads are not allowed to ensure report validity."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "FireSight needs your location to attach GPS coordinates to your fire report and to show your position on the fire map."
+        }
       ]
     ],
     "experiments": {
