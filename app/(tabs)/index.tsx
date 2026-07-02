@@ -1,18 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Animated,
-  SafeAreaView,
   Dimensions,
   Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../context/ThemeContext';
 import EmergencyCameraModal from '../../components/EmergencyCameraModal';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -251,7 +251,7 @@ export default function HomeScreen() {
                 activeOpacity={0.85}
               >
                 <Ionicons name="flame" size={42} color={COLORS.white} />
-                <Text style={styles.sosBtnLabel}>REPORT FIRE</Text>
+                <Text style={styles.sosBtnLabel}>PALTAN NA NGANI</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
