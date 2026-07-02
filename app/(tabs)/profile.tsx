@@ -18,7 +18,7 @@ const COLORS = {
 };
 
 const USER = {
-  name: 'Juan dela Cruz',
+  name: 'King Dando',
   contact: '+63 917 123 4567',
   address: 'Brgy. Lian Poblacion, Lian, Batangas',
   accountId: 'FS-LN-00142',
