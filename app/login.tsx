@@ -57,17 +57,6 @@ export default function LoginScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
       {/* Theme toggle */}
-      <TouchableOpacity
-        style={[styles.themeBtn, { backgroundColor: card, borderColor }]}
-        onPress={toggleTheme}
-      >
-        <Ionicons
-          name={isDark ? 'sunny-outline' : 'moon-outline'}
-          size={18}
-          color={textSec}
-        />
-      </TouchableOpacity>
-
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"

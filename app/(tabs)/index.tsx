@@ -254,7 +254,7 @@ export default function HomeScreen() {
                 activeOpacity={0.85}
               >
                 <Ionicons name="flame" size={42} color={COLORS.white} />
-                <Text style={styles.sosBtnLabel}>PALTAN NA NGANI</Text>
+                <Text style={styles.sosBtnLabel}>REPORT FIRE</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
