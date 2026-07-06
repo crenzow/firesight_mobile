@@ -4,13 +4,13 @@ import {
   Animated,
   Dimensions,
   Modal,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import EmergencyCameraModal from '../../components/EmergencyCameraModal';
 import { useTheme } from '../../context/ThemeContext';
 

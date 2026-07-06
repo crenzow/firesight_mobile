@@ -5,12 +5,12 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  useColorScheme,
-  SafeAreaView,
   Modal,
   Dimensions,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext'; // Adjust path if needed
 
 const { width } = Dimensions.get('window');
 
@@ -190,7 +190,7 @@ const ARTICLES: Article[] = [
 ];
 
 export default function EducationScreen() {
-  const isDark = useColorScheme() === 'dark';
+  const { isDark } = useTheme();
   const [activeCategory, setActiveCategory] = useState<Category>('all');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
@@ -291,7 +291,7 @@ export default function EducationScreen() {
 
         {/* Articles List */}
         <View style={styles.articlesList}>
-          {filtered.map((art, i) => (
+          {filtered.map((art) => (
             <TouchableOpacity
               key={art.id}
               style={[
@@ -332,7 +332,7 @@ export default function EducationScreen() {
                     ]}
                   >
                     <Text style={[styles.articleCatTagText, { color: art.color }]}>
-                      {art.category}
+                      {art.category.charAt(0).toUpperCase() + art.category.slice(1)}
                     </Text>
                   </View>
                 </View>
@@ -353,7 +353,7 @@ export default function EducationScreen() {
         onRequestClose={() => setSelectedArticle(null)}
       >
         {selectedArticle && (
-          <SafeAreaView style={[styles.modalSafe, { backgroundColor: bg }]}>
+          <View style={[styles.modalContent, { backgroundColor: bg }]}>
             {/* Modal Header */}
             <View
               style={[
@@ -479,7 +479,7 @@ export default function EducationScreen() {
                 <Text style={styles.doneBtnText}>Got it</Text>
               </TouchableOpacity>
             </ScrollView>
-          </SafeAreaView>
+          </View>
         )}
       </Modal>
     </SafeAreaView>
@@ -603,8 +603,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   articleCatTagText: { fontSize: 10, fontWeight: '700' },
-  modalSafe: { flex: 1 },
+  modalContent: { flex: 1 },
   modalHeader: {
+    paddingTop: 20,
     paddingBottom: 28,
   },
   modalCloseBtn: {

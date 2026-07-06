@@ -288,7 +288,7 @@ export default function ProfileScreen() {
             toggle
             toggled={isDark}
             onToggle={toggleTheme}
-            tint={COLORS.navy}
+            tint={COLORS.orange}
             isDark={isDark}
             borderColor="transparent"
             textPrimary={textPrimary}

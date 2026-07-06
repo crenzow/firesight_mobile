@@ -4,17 +4,16 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  useColorScheme,
-  SafeAreaView,
   ActivityIndicator,
   ScrollView,
   Animated,
   Dimensions,
-  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { useTheme } from '../../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -107,7 +106,7 @@ function buildMapHTML(
 ): string {
   const tileUrl = isDark
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'; // Clean gray/white standard map
 
   const incidentMarkers = incidents
     .map((inc) => {
@@ -182,7 +181,15 @@ function buildMapHTML(
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #map { width: 100%; height: 100%; background: ${isDark ? '#0A1628' : '#F0F2F5'}; }
+    html, body, #map { width: 100%; height: 100%; background: ${isDark ? '#0A1628' : '#FFFFFF'}; }
+    
+    /* Removes vibrant blues and matches light theme UI perfectly */
+    ${!isDark ? `
+      .leaflet-tile-container {
+        filter: grayscale(100%) brightness(104%) contrast(96%);
+      }
+    ` : ''}
+    
     .leaflet-popup-content-wrapper { border-radius: 10px; overflow: hidden; padding: 0; }
     .leaflet-popup-content { margin: 8px 12px; }
   </style>
@@ -211,7 +218,9 @@ function buildMapHTML(
 }
 
 export default function MapScreen() {
-  const isDark = useColorScheme() === 'dark';
+  // Uses your custom theme context state now!
+  const { isDark } = useTheme(); 
+  
   const [layer, setLayer] = useState<MapLayer>('incidents');
   const [mapReady, setMapReady] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<(typeof FIRE_INCIDENTS)[0] | null>(null);
@@ -409,10 +418,10 @@ export default function MapScreen() {
           <View style={styles.heatGradientRow}>
             <Text style={[styles.heatGradientLabel, { color: textSec }]}>Low</Text>
             <View style={styles.heatGradientBar}>
-  <View style={{ flex: 1, backgroundColor: COLORS.yellow }} />
-  <View style={{ flex: 1, backgroundColor: COLORS.orange }} />
-  <View style={{ flex: 1, backgroundColor: COLORS.red }} />
-</View>
+              <View style={{ flex: 1, backgroundColor: COLORS.yellow }} />
+              <View style={{ flex: 1, backgroundColor: COLORS.orange }} />
+              <View style={{ flex: 1, backgroundColor: COLORS.red }} />
+            </View>
             <Text style={[styles.heatGradientLabel, { color: textSec }]}>High</Text>
           </View>
           <View style={styles.riskStatsRow}>
@@ -668,13 +677,13 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 14,
   },
-heatGradientBar: {
-  flex: 1,
-  height: 10,
-  borderRadius: 5,
-  overflow: 'hidden',
-  flexDirection: 'row',
-},
+  heatGradientBar: {
+    flex: 1,
+    height: 10,
+    borderRadius: 5,
+    overflow: 'hidden',
+    flexDirection: 'row',
+  },
   heatGradientLabel: { fontSize: 11, fontWeight: '600' },
   riskStatsRow: {
     flexDirection: 'row',
