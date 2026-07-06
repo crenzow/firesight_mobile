@@ -194,9 +194,12 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={[styles.header, { backgroundColor: isDark ? COLORS.navyMid : COLORS.navy }]}>
         <View>
-          <Text style={styles.headerGreeting}>Good morning,</Text>
-          <Text style={styles.headerName}>Juan dela Cruz 👋</Text>
-        </View>
+  <View style={styles.headerBrand}>
+    <Ionicons name="flame" size={20} color={COLORS.orange} />
+    <Text style={styles.headerAppName}>FireSight</Text>
+  </View>
+  <Text style={styles.headerTagline}>Lian, Batangas</Text>
+</View>
         <View style={styles.headerActions}>
           {/* Dark/Light Toggle */}
           <TouchableOpacity style={styles.headerIconBtn} onPress={toggleTheme}>
@@ -414,8 +417,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
   },
-  headerGreeting: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '500' },
-  headerName: { color: COLORS.white, fontSize: 20, fontWeight: '700', marginTop: 2 },
   headerActions: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   headerIconBtn: {
     width: 42,
@@ -623,4 +624,21 @@ const styles = StyleSheet.create({
   },
   notifItemBody: { fontSize: 12, lineHeight: 18, marginBottom: 4 },
   notifItemTime: { fontSize: 11 },
+
+  headerBrand: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 7,
+},
+headerAppName: {
+  color: COLORS.white,
+  fontSize: 22,
+  fontWeight: '900',
+  letterSpacing: -0.3,
+},
+headerTagline: {
+  color: 'rgba(255,255,255,0.6)',
+  fontSize: 12,
+  marginTop: 2,
+},
 });
