@@ -16,6 +16,7 @@ import { useTheme } from '../context/ThemeContext';
 const COLORS = {
   navy: '#0A1628',
   navyMid: '#1A2E4A',
+  navyLight: '#243B55',
   red: '#C0392B',
   orange: '#E8590C',
   white: '#FFFFFF',
@@ -27,7 +28,7 @@ const COLORS = {
 };
 
 export default function LoginScreen() {
-  const { isDark, toggleTheme } = useTheme();
+  const { isDark } = useTheme();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +41,7 @@ export default function LoginScreen() {
   const textPrimary = isDark ? COLORS.white : COLORS.navy;
   const textSec = isDark ? '#A0B0C8' : '#4A5568';
   const borderColor = isDark ? COLORS.borderDark : COLORS.border;
-  const inputBg = isDark ? '#243B55' : COLORS.white;
+  const inputBg = isDark ? COLORS.navyLight : COLORS.white;
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -51,43 +52,52 @@ export default function LoginScreen() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
     setLoading(false);
-    router.replace('/(tabs)');
+    router.replace('/(tabs)' as any);
   };
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
-      {/* Theme toggle */}
+
+      {/* Navy Header */}
+      <View style={[styles.header, { backgroundColor: isDark ? COLORS.navyMid : COLORS.navy }]}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <View style={styles.headerBrand}>
+            <Ionicons name="flame" size={18} color={COLORS.orange} />
+            <Text style={styles.headerAppName}>FireSight</Text>
+          </View>
+          <Text style={styles.headerSub}>Sign in to your account</Text>
+        </View>
+      </View>
+
+      {/* Scrollable content */}
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Logo + Branding */}
-        <View style={styles.brandArea}>
-          <View style={[styles.logoWrap, { backgroundColor: COLORS.navy }]}>
-            <View style={styles.logoInner}>
-              <Ionicons name="flame" size={40} color={COLORS.orange} />
-            </View>
-          </View>
-          <Text style={[styles.brandSub, { color: textSec }]}>BFP LIAN FIRE STATION</Text>
-          <View style={styles.brandNameRow}>
-            <Text style={[styles.brandNameFire, { color: textPrimary }]}>FIRE</Text>
-            <Text style={styles.brandNameSight}>SIGHT</Text>
-          </View>
-          <Text style={[styles.brandTagline, { color: textSec }]}>
-            Community fire safety and reporting app for Lian, Batangas
+        {/* Page title */}
+        <View style={styles.titleArea}>
+          <Text style={[styles.pageTitle, { color: textPrimary }]}>Welcome</Text>
+          <Text style={[styles.pageSubtitle, { color: textSec }]}>
+            Use the email and password you registered with.
           </Text>
         </View>
 
-        {/* Login Card */}
+        {/* Form card */}
         <View style={[styles.card, { backgroundColor: card, borderColor }]}>
-          <Text style={[styles.cardTitle, { color: textPrimary }]}>Sign in to your account</Text>
-          <Text style={[styles.cardSub, { color: textSec }]}>
-            Use the email and password you registered with.
-          </Text>
 
+          {/* Error */}
           {error ? (
-            <View style={[styles.errorBox, { backgroundColor: isDark ? '#2D1515' : '#FFF5F5' }]}>
+            <View style={[
+              styles.errorBox,
+              { backgroundColor: isDark ? '#2D1515' : '#FFF5F5' },
+            ]}>
               <Ionicons name="alert-circle-outline" size={16} color={COLORS.red} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
@@ -135,10 +145,14 @@ export default function LoginScreen() {
             </View>
           </View>
 
+          {/* Forgot password */}
           <TouchableOpacity style={styles.forgotBtn}>
-            <Text style={[styles.forgotText, { color: COLORS.orange }]}>Forgot password?</Text>
+            <Text style={[styles.forgotText, { color: COLORS.orange }]}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
+          {/* Sign in button */}
           <TouchableOpacity
             style={[styles.loginBtn, loading && { opacity: 0.75 }]}
             onPress={handleLogin}
@@ -148,19 +162,22 @@ export default function LoginScreen() {
             {loading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.loginBtnText}>Sign in</Text>
+              <Text style={styles.loginBtnText}>Sign In</Text>
             )}
           </TouchableOpacity>
         </View>
 
         {/* Register link */}
-        <View style={styles.bottomRow}>
-          <Text style={[styles.bottomText, { color: textSec }]}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/register')}>
-            <Text style={[styles.bottomLink, { color: COLORS.red }]}>Create one</Text>
+        <View style={styles.registerRow}>
+          <Text style={[styles.registerText, { color: textSec }]}>New here? </Text>
+          <TouchableOpacity onPress={() => router.push('/register' as any)}>
+            <Text style={[styles.registerLink, { color: COLORS.red }]}>
+              Create account
+            </Text>
           </TouchableOpacity>
         </View>
 
+        {/* BFP footer */}
         <Text style={[styles.footer, { color: COLORS.textMuted }]}>
           🚒 Powered by BFP Lian Fire Station
         </Text>
@@ -171,87 +188,62 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  themeBtn: {
-    position: 'absolute',
-    top: 52,
-    right: 20,
-    zIndex: 10,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+  backBtn: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+  },
+  headerBrand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  headerAppName: {
+    color: COLORS.white,
+    fontSize: 20,
+    fontWeight: '900',
+    letterSpacing: -0.3,
+  },
+  headerSub: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    marginTop: 2,
   },
   scroll: {
     flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 28,
     paddingBottom: 40,
   },
-  brandArea: {
-    alignItems: 'center',
-    paddingTop: 56,
-    paddingBottom: 36,
+  titleArea: {
+    marginBottom: 24,
   },
-  logoWrap: {
-    width: 90,
-    height: 90,
-    borderRadius: 26,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  logoInner: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: 'rgba(232,89,12,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandSub: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 2.5,
+  pageTitle: {
+    fontSize: 28,
+    fontWeight: '800',
     marginBottom: 8,
+    letterSpacing: -0.3,
   },
-  brandNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  brandNameFire: {
-    fontSize: 36,
-    fontWeight: '900',
-    letterSpacing: 1,
-  },
-  brandNameSight: {
-    fontSize: 36,
-    fontWeight: '900',
-    letterSpacing: 1,
-    color: COLORS.orange,
-  },
-  brandTagline: {
-    fontSize: 13,
-    textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: 20,
+  pageSubtitle: {
+    fontSize: 14,
+    lineHeight: 22,
   },
   card: {
     borderRadius: 20,
     borderWidth: 1,
     padding: 24,
-    marginBottom: 20,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  cardSub: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 22,
+    marginBottom: 24,
   },
   errorBox: {
     flexDirection: 'row',
@@ -266,7 +258,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     flex: 1,
   },
-  fieldGroup: { marginBottom: 16 },
+  fieldGroup: { marginBottom: 18 },
   label: {
     fontSize: 13,
     fontWeight: '600',
@@ -285,7 +277,7 @@ const styles = StyleSheet.create({
   forgotBtn: {
     alignSelf: 'flex-end',
     marginBottom: 20,
-    marginTop: -4,
+    marginTop: -6,
   },
   forgotText: {
     fontSize: 13,
@@ -302,13 +294,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
-  bottomRow: {
+  registerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
   },
-  bottomText: { fontSize: 14 },
-  bottomLink: { fontSize: 14, fontWeight: '700' },
+  registerText: { fontSize: 14 },
+  registerLink: { fontSize: 14, fontWeight: '700' },
   footer: {
     textAlign: 'center',
     fontSize: 12,

@@ -97,16 +97,25 @@ const RISK_ZONES = [
 ];
 
 type MapLayer = 'incidents' | 'heatmap';
+type MapViewType = 'standard' | 'satellite' | 'terrain';
 
 function buildMapHTML(
   incidents: typeof FIRE_INCIDENTS,
   riskZones: typeof RISK_ZONES,
   layer: MapLayer,
-  isDark: boolean
+  viewType: MapViewType
 ): string {
-  const tileUrl = isDark
-    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'; // Clean gray/white standard map
+  // Use standard mapping urls with untouched natural map color definitions
+  let tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  let attribution = '&copy; OpenStreetMap contributors';
+
+  if (viewType === 'satellite') {
+    tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+  } else if (viewType === 'terrain') {
+    tileUrl = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+    attribution = 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap';
+  }
 
   const incidentMarkers = incidents
     .map((inc) => {
@@ -181,15 +190,8 @@ function buildMapHTML(
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #map { width: 100%; height: 100%; background: ${isDark ? '#0A1628' : '#FFFFFF'}; }
-    
-    /* Removes vibrant blues and matches light theme UI perfectly */
-    ${!isDark ? `
-      .leaflet-tile-container {
-        filter: grayscale(100%) brightness(104%) contrast(96%);
-      }
-    ` : ''}
-    
+    html, body, #map { width: 100%; height: 100%; background: #F0F2F5; }
+    /* Manual color filters completely removed here so colors remain natural and clean */
     .leaflet-popup-content-wrapper { border-radius: 10px; overflow: hidden; padding: 0; }
     .leaflet-popup-content { margin: 8px 12px; }
   </style>
@@ -200,13 +202,13 @@ function buildMapHTML(
     var map = L.map('map', {
       center: [14.0442, 120.6270],
       zoom: 14,
-      zoomControl: true,
+      zoomControl: false, // Turned off default to keep clean viewport space
       attributionControl: false
     });
 
     L.tileLayer('${tileUrl}', {
-      maxZoom: 19,
-      subdomains: 'abcd'
+      maxZoom: 18,
+      attribution: '${attribution}'
     }).addTo(map);
 
     ${layer === 'heatmap' ? heatCircles : incidentMarkers}
@@ -218,10 +220,11 @@ function buildMapHTML(
 }
 
 export default function MapScreen() {
-  // Uses your custom theme context state now!
   const { isDark } = useTheme(); 
   
   const [layer, setLayer] = useState<MapLayer>('incidents');
+  const [viewType, setViewType] = useState<MapViewType>('standard');
+  const [showViewMenu, setShowViewMenu] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<(typeof FIRE_INCIDENTS)[0] | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -267,7 +270,8 @@ export default function MapScreen() {
   const levelLabel = (level: string) =>
     level === 'high' ? 'High Risk' : level === 'medium' ? 'Medium' : 'Low Risk';
 
-  const mapHTML = buildMapHTML(FIRE_INCIDENTS, RISK_ZONES, layer, isDark);
+  // Include viewType into compilation structure
+  const mapHTML = buildMapHTML(FIRE_INCIDENTS, RISK_ZONES, layer, viewType);
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
@@ -330,10 +334,10 @@ export default function MapScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Map */}
+      {/* Map Content View Container */}
       <View style={{ flex: 1, position: 'relative' }}>
         <WebView
-          key={`${layer}-${isDark}`}
+          key={`${layer}-${viewType}`} // Forces precise fresh reload upon layer or view type change
           source={{ html: mapHTML }}
           style={{ flex: 1 }}
           onLoad={() => setMapReady(true)}
@@ -345,9 +349,47 @@ export default function MapScreen() {
         {!mapReady && (
           <View style={[styles.mapLoader, { backgroundColor: isDark ? COLORS.navy : COLORS.offWhite }]}>
             <ActivityIndicator size="large" color={COLORS.red} />
-            <Text style={[styles.mapLoaderText, { color: textSec }]}>Loading map...</Text>
+            <Text style={[styles.mapLoaderText, { color: textSec }]}>Loading map view...</Text>
           </View>
         )}
+
+        {/* Dynamic Map Layers Side Button Menu */}
+        <View style={styles.sideButtonsContainer}>
+          <TouchableOpacity 
+            style={[styles.sideActionButton, { backgroundColor: card, borderColor }]}
+            onPress={() => setShowViewMenu(!showViewMenu)}
+          >
+            <Ionicons name="layers" size={20} color={textPrimary} />
+          </TouchableOpacity>
+
+          {showViewMenu && (
+            <View style={[styles.viewTypeDropdown, { backgroundColor: card, borderColor }]}>
+              <TouchableOpacity 
+                style={[styles.viewTypeItem, viewType === 'standard' && styles.viewTypeItemActive]}
+                onPress={() => { setMapReady(false); setViewType('standard'); setShowViewMenu(false); }}
+              >
+                <Ionicons name="map-outline" size={16} color={viewType === 'standard' ? COLORS.white : textPrimary} />
+                <Text style={[styles.viewTypeItemText, { color: viewType === 'standard' ? COLORS.white : textPrimary }]}>Street</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.viewTypeItem, viewType === 'satellite' && styles.viewTypeItemActive]}
+                onPress={() => { setMapReady(false); setViewType('satellite'); setShowViewMenu(false); }}
+              >
+                <Ionicons name="earth" size={16} color={viewType === 'satellite' ? COLORS.white : textPrimary} />
+                <Text style={[styles.viewTypeItemText, { color: viewType === 'satellite' ? COLORS.white : textPrimary }]}>Satellite</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={[styles.viewTypeItem, viewType === 'terrain' && styles.viewTypeItemActive]}
+                onPress={() => { setMapReady(false); setViewType('terrain'); setShowViewMenu(false); }}
+              >
+                <Ionicons name="git-branch-outline" size={16} color={viewType === 'terrain' ? COLORS.white : textPrimary} />
+                <Text style={[styles.viewTypeItemText, { color: viewType === 'terrain' ? COLORS.white : textPrimary }]}>Terrain</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
 
         {/* Legend */}
         <View style={[styles.legend, { backgroundColor: card + 'EE', borderColor }]}>
@@ -614,8 +656,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
+    zIndex: 10,
   },
   mapLoaderText: { fontSize: 14 },
+  sideButtonsContainer: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    alignItems: 'flex-end',
+    zIndex: 5,
+  },
+  sideActionButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  viewTypeDropdown: {
+    marginTop: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    padding: 6,
+    gap: 4,
+    minWidth: 110,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+  },
+  viewTypeItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  viewTypeItemActive: {
+    backgroundColor: COLORS.red,
+  },
+  viewTypeItemText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
   legend: {
     position: 'absolute',
     bottom: 12,
