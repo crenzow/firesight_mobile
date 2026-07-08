@@ -191,28 +191,28 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
-      {/* Header */}
+      {/* Header — Uniformly updated sizes matching Map tabs */}
       <View style={[styles.header, { backgroundColor: isDark ? COLORS.navyMid : COLORS.navy }]}>
         <View>
-  <View style={styles.headerBrand}>
-    <Ionicons name="flame" size={20} color={COLORS.orange} />
-    <Text style={styles.headerAppName}>FireSight</Text>
-  </View>
-  <Text style={styles.headerTagline}>Lian, Batangas</Text>
-</View>
+          <View style={styles.headerBrand}>
+            <Ionicons name="flame" size={18} color={COLORS.orange} />
+            <Text style={styles.headerAppName}>FireSight</Text>
+          </View>
+          <Text style={styles.headerTagline}>Lian, Batangas · Home</Text>
+        </View>
         <View style={styles.headerActions}>
           {/* Dark/Light Toggle */}
           <TouchableOpacity style={styles.headerIconBtn} onPress={toggleTheme}>
             <Ionicons
               name={isDark ? 'sunny' : 'moon'}
-              size={20}
+              size={18}
               color={COLORS.white}
             />
           </TouchableOpacity>
 
           {/* Notification Bell */}
           <TouchableOpacity style={styles.headerIconBtn} onPress={openNotif}>
-            <Ionicons name="notifications" size={22} color={COLORS.white} />
+            <Ionicons name="notifications" size={20} color={COLORS.white} />
             {unreadCount > 0 && (
               <View style={styles.notifBadge}>
                 <Text style={styles.notifBadgeText}>
@@ -291,7 +291,9 @@ export default function HomeScreen() {
 
         {/* Emergency Contacts */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: textPrimary }]}>Emergency Contacts</Text>
+          <Text style={[styles.sectionTitle, { color: textPrimary, marginBottom: 12 }]}>
+            Emergency Contacts
+          </Text>
           <View style={styles.contactRow}>
             {EMERGENCY_CONTACTS.map((c) => (
               <TouchableOpacity
@@ -310,8 +312,10 @@ export default function HomeScreen() {
         </View>
 
         {/* My Recent Reports */}
-        <View style={[styles.section, { marginBottom: 32 }]}>
-          <Text style={[styles.sectionTitle, { color: textPrimary }]}>My Recent Reports</Text>
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textPrimary, marginBottom: 12 }]}>
+            My Recent Reports
+          </Text>
           <View style={[styles.emptyCard, { backgroundColor: card, borderColor }]}>
             <Ionicons name="document-text-outline" size={36} color={textSec} />
             <Text style={[styles.emptyText, { color: textSec }]}>No reports submitted yet.</Text>
@@ -335,7 +339,7 @@ export default function HomeScreen() {
             },
           ]}
         >
-          <SafeAreaView>
+          <SafeAreaView edges={['top']}>
             {/* Panel Header */}
             <View style={[styles.notifPanelHeader, { borderBottomColor: borderColor }]}>
               <TouchableOpacity onPress={closeNotif} style={styles.notifCloseBtn}>
@@ -417,19 +421,34 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
   },
+  headerBrand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  headerAppName: {
+    color: COLORS.white,
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  headerTagline: {
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: 12,
+    marginTop: 2,
+  },
   headerActions: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   headerIconBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   notifBadge: {
     position: 'absolute',
-    top: 6,
-    right: 6,
+    top: 4,
+    right: 4,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -441,7 +460,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   notifBadgeText: { color: COLORS.white, fontSize: 9, fontWeight: '800' },
-  scroll: { paddingBottom: 20 },
+  scroll: { 
+    paddingBottom: 40, 
+  },
   sosCard: {
     marginHorizontal: 16,
     marginTop: 16,
@@ -502,14 +523,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-  section: { paddingHorizontal: 16, marginTop: 24 },
+  section: { 
+    paddingHorizontal: 16, 
+    marginTop: 24 
+  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
   },
-  sectionTitle: { fontSize: 17, fontWeight: '700' },
+  sectionTitle: { fontSize: 16, fontWeight: '700' },
   seeAll: { fontSize: 13, fontWeight: '600' },
   alertCard: {
     flexDirection: 'row',
@@ -556,6 +580,7 @@ const styles = StyleSheet.create({
     padding: 28,
     alignItems: 'center',
     gap: 10,
+    width: '100%',
   },
   emptyText: { fontSize: 14 },
   notifOverlay: {
@@ -624,21 +649,4 @@ const styles = StyleSheet.create({
   },
   notifItemBody: { fontSize: 12, lineHeight: 18, marginBottom: 4 },
   notifItemTime: { fontSize: 11 },
-
-  headerBrand: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 7,
-},
-headerAppName: {
-  color: COLORS.white,
-  fontSize: 22,
-  fontWeight: '900',
-  letterSpacing: -0.3,
-},
-headerTagline: {
-  color: 'rgba(255,255,255,0.6)',
-  fontSize: 12,
-  marginTop: 2,
-},
 });
