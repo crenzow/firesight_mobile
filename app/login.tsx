@@ -27,9 +27,12 @@ const COLORS = {
   borderDark: '#243B55',
 };
 
+type Role = 'resident' | 'bfp';
+
 export default function LoginScreen() {
   const { isDark } = useTheme();
   const router = useRouter();
+  const [role, setRole] = useState<Role>('resident');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
@@ -52,18 +55,27 @@ export default function LoginScreen() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1500));
     setLoading(false);
-    router.replace('/(tabs)' as any);
+    if (role === 'resident') {
+      router.replace('/(tabs)' as any);
+    } else {
+      router.replace('/(bfp)' as any);
+    }
+  };
+
+  // Prototype quick access
+  const handleQuickAccess = (target: Role) => {
+    if (target === 'resident') {
+      router.replace('/(tabs)' as any);
+    } else {
+      router.replace('/(bfp)' as any);
+    }
   };
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: bg }]}>
-
       {/* Navy Header */}
       <View style={[styles.header, { backgroundColor: isDark ? COLORS.navyMid : COLORS.navy }]}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={22} color={COLORS.white} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
@@ -71,11 +83,10 @@ export default function LoginScreen() {
             <Ionicons name="flame" size={18} color={COLORS.orange} />
             <Text style={styles.headerAppName}>FireSight</Text>
           </View>
-          <Text style={styles.headerSub}>Sign in to your account</Text>
+          <Text style={styles.headerSub}>Sign in to continue</Text>
         </View>
       </View>
 
-      {/* Scrollable content */}
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
@@ -83,27 +94,26 @@ export default function LoginScreen() {
       >
         {/* Page title */}
         <View style={styles.titleArea}>
-          <Text style={[styles.pageTitle, { color: textPrimary }]}>Welcome</Text>
+          <Text style={[styles.pageTitle, { color: textPrimary }]}>Welcome back</Text>
           <Text style={[styles.pageSubtitle, { color: textSec }]}>
-            Use the email and password you registered with.
+            Select your role and sign in to continue.
           </Text>
         </View>
 
         {/* Form card */}
         <View style={[styles.card, { backgroundColor: card, borderColor }]}>
-
-          {/* Error */}
           {error ? (
-            <View style={[
-              styles.errorBox,
-              { backgroundColor: isDark ? '#2D1515' : '#FFF5F5' },
-            ]}>
+            <View
+              style={[
+                styles.errorBox,
+                { backgroundColor: isDark ? '#2D1515' : '#FFF5F5' },
+              ]}
+            >
               <Ionicons name="alert-circle-outline" size={16} color={COLORS.red} />
               <Text style={styles.errorText}>{error}</Text>
             </View>
           ) : null}
 
-          {/* Email */}
           <View style={styles.fieldGroup}>
             <Text style={[styles.label, { color: textSec }]}>Email address</Text>
             <View style={[styles.inputWrap, { backgroundColor: inputBg, borderColor }]}>
@@ -121,7 +131,6 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          {/* Password */}
           <View style={styles.fieldGroup}>
             <Text style={[styles.label, { color: textSec }]}>Password</Text>
             <View style={[styles.inputWrap, { backgroundColor: inputBg, borderColor }]}>
@@ -145,16 +154,18 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          {/* Forgot password */}
           <TouchableOpacity style={styles.forgotBtn}>
             <Text style={[styles.forgotText, { color: COLORS.orange }]}>
               Forgot password?
             </Text>
           </TouchableOpacity>
 
-          {/* Sign in button */}
           <TouchableOpacity
-            style={[styles.loginBtn, loading && { opacity: 0.75 }]}
+            style={[
+              styles.loginBtn,
+              { backgroundColor: role === 'bfp' ? COLORS.navy : COLORS.red },
+              loading && { opacity: 0.75 },
+            ]}
             onPress={handleLogin}
             activeOpacity={0.85}
             disabled={loading}
@@ -162,22 +173,61 @@ export default function LoginScreen() {
             {loading ? (
               <ActivityIndicator color={COLORS.white} />
             ) : (
-              <Text style={styles.loginBtnText}>Sign In</Text>
+              <>
+                <Ionicons
+                  name={role === 'bfp' ? 'shield-checkmark' : 'log-in-outline'}
+                  size={18}
+                  color={COLORS.white}
+                />
+                <Text style={styles.loginBtnText}>
+                  Sign In as {role === 'bfp' ? 'BFP Personnel' : 'Resident'}
+                </Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
 
-        {/* Register link */}
-        <View style={styles.registerRow}>
-          <Text style={[styles.registerText, { color: textSec }]}>New here? </Text>
-          <TouchableOpacity onPress={() => router.push('/register' as any)}>
-            <Text style={[styles.registerLink, { color: COLORS.red }]}>
-              Create account
+        {/* Prototype Quick Access */}
+        <View style={[styles.protoCard, { backgroundColor: isDark ? COLORS.navyLight : '#FFF8F0', borderColor: COLORS.orange + '44' }]}>
+          <View style={styles.protoHeader}>
+            <Ionicons name="flask-outline" size={16} color={COLORS.orange} />
+            <Text style={[styles.protoTitle, { color: COLORS.orange }]}>
+              Prototype Quick Access
             </Text>
-          </TouchableOpacity>
+          </View>
+          <Text style={[styles.protoSub, { color: textSec }]}>
+            Skip login for testing purposes
+          </Text>
+          <View style={styles.protoRow}>
+            <TouchableOpacity
+              style={[styles.protoBtn, { backgroundColor: COLORS.red }]}
+              onPress={() => handleQuickAccess('resident')}
+            >
+              <Ionicons name="people-outline" size={16} color={COLORS.white} />
+              <Text style={styles.protoBtnText}>Resident App</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.protoBtn, { backgroundColor: COLORS.navy }]}
+              onPress={() => handleQuickAccess('bfp')}
+            >
+              <Ionicons name="shield-outline" size={16} color={COLORS.white} />
+              <Text style={styles.protoBtnText}>BFP Personnel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* BFP footer */}
+        {/* Register link — residents only */}
+        {role === 'resident' && (
+          <View style={styles.registerRow}>
+            <Text style={[styles.registerText, { color: textSec }]}>New here? </Text>
+            <TouchableOpacity onPress={() => router.push('/register' as any)}>
+              <Text style={[styles.registerLink, { color: COLORS.red }]}>
+                Create account
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         <Text style={[styles.footer, { color: COLORS.textMuted }]}>
           🚒 Powered by BFP Lian Fire Station
         </Text>
@@ -226,24 +276,42 @@ const styles = StyleSheet.create({
     paddingTop: 28,
     paddingBottom: 40,
   },
-  titleArea: {
-    marginBottom: 24,
-  },
+  titleArea: { marginBottom: 24 },
   pageTitle: {
     fontSize: 28,
     fontWeight: '800',
     marginBottom: 8,
     letterSpacing: -0.3,
   },
-  pageSubtitle: {
-    fontSize: 14,
-    lineHeight: 22,
+  pageSubtitle: { fontSize: 14, lineHeight: 22 },
+  roleCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
   },
+  roleLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    marginBottom: 12,
+  },
+  roleRow: { flexDirection: 'row', gap: 10 },
+  roleBtn: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 14,
+    alignItems: 'center',
+    gap: 6,
+  },
+  roleBtnTitle: { fontSize: 14, fontWeight: '700' },
+  roleBtnSub: { fontSize: 11, textAlign: 'center' },
   card: {
     borderRadius: 20,
     borderWidth: 1,
     padding: 24,
-    marginBottom: 24,
+    marginBottom: 16,
   },
   errorBox: {
     flexDirection: 'row',
@@ -253,17 +321,9 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
   },
-  errorText: {
-    color: COLORS.red,
-    fontSize: 13,
-    flex: 1,
-  },
+  errorText: { color: COLORS.red, fontSize: 13, flex: 1 },
   fieldGroup: { marginBottom: 18 },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
+  label: { fontSize: 13, fontWeight: '600', marginBottom: 8 },
   inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -279,21 +339,41 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: -6,
   },
-  forgotText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  forgotText: { fontSize: 13, fontWeight: '600' },
   loginBtn: {
-    backgroundColor: COLORS.red,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
     borderRadius: 14,
     paddingVertical: 16,
+  },
+  loginBtnText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
+  protoCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 20,
+  },
+  protoHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
   },
-  loginBtnText: {
-    color: COLORS.white,
-    fontSize: 16,
-    fontWeight: '700',
+  protoTitle: { fontSize: 13, fontWeight: '700' },
+  protoSub: { fontSize: 12, marginBottom: 12 },
+  protoRow: { flexDirection: 'row', gap: 10 },
+  protoBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 12,
   },
+  protoBtnText: { color: COLORS.white, fontSize: 13, fontWeight: '700' },
   registerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -301,8 +381,5 @@ const styles = StyleSheet.create({
   },
   registerText: { fontSize: 14 },
   registerLink: { fontSize: 14, fontWeight: '700' },
-  footer: {
-    textAlign: 'center',
-    fontSize: 12,
-  },
+  footer: { textAlign: 'center', fontSize: 12 },
 });
